@@ -38,7 +38,7 @@ play(Depth,Rown,Coln):-
 		    retract(rownum(Rown)),
 		    retract(colnum(Coln))
 	    ;
-			writeln('Not a valid row/col number,should be both even.'),
+			writeln('Not a valid row/col number, should be both even.'),
 			writeln('')
     ).
 
