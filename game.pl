@@ -66,60 +66,43 @@ game_loop(Board, Mode, Depth, Color):-
         IsBoardFull = yes ->
             show_statistics(Board)
         ;
-        Mode = 1 ->
-        (
-            Color = black ->
-                find_moves(Board, black, MovesList),
-			    member(_, MovesList),
-			    human_select_move(Move, MovesList),!,
-			    set_piece(Board, Move, black, FinalBoard),
-			    game_loop(FinalBoard, 1, Depth, white),!
-            ;
-            Color = white ->
-                find_moves(Board, white, MovesList),
-                member(_, MovesList),
-			    machine_select_move(Board, Depth, white, FinalBoard),!,
-			    game_loop(FinalBoard, 1, Depth, black),!
-        )
-        ;
-        Mode = 2 ->
-        (
-            Color = black ->
-                find_moves(Board, black, MovesList),
-                member(_, MovesList),
-			    machine_select_move(Board, Depth, black, FinalBoard),!,
-			    game_loop(FinalBoard, 2, Depth, white),!
-            ;
-            Color = white ->
-			    find_moves(Board, white, MovesList),
-			    member(_, MovesList),
-			    human_select_move(Move, MovesList),!,
-			    set_piece(Board, Move, white, FinalBoard),
-			    game_loop(FinalBoard, 2, Depth, black),!
-        )
-        ;
-        Mode = 3 ->
-		    find_moves(Board, Color, MovesList),
-		    member(_, MovesList),
-		    human_select_move(Move, MovesList),!,
-		    set_piece(Board, Move, Color, FinalBoard),
-		    rival_color(Color, RivalColor),
-		    game_loop(FinalBoard, 3, Depth, RivalColor),!
-		;
-        Mode = 4 ->
-        (
-            Color = black ->
-                find_moves(Board, black, MovesList),
-                member(_, MovesList),
-                machine_select_move(Board, Depth, black, FinalBoard),!,
-                game_loop(FinalBoard, 4, Depth, white),!
-            ;
-            Color = white ->
-                find_moves(Board, white, MovesList),
-                member(_, MovesList),
-                machine_select_move(Board, Depth, white, FinalBoard),!,
-                game_loop(FinalBoard, 4, Depth, black),!
-        )
+		find_moves(Board, Color, MovesList),
+		member(_, MovesList),
+		rival_color(Color,RivalColor),
+		(
+			Mode = 1 ->
+			(
+				Color = black ->
+					human_select_move(Move, MovesList),!,
+					set_piece(Board, Move, Color, FinalBoard),
+					game_loop(FinalBoard, 1, Depth, RivalColor),!
+				;
+				Color = white ->
+					machine_select_move(Board, Depth, white, FinalBoard),!,
+					game_loop(FinalBoard, 1, Depth, RivalColor),!
+			)
+			;
+			Mode = 2 ->
+			(
+				Color = black ->
+					machine_select_move(Board, Depth, Color, FinalBoard),!,
+					game_loop(FinalBoard, 2, Depth, RivalColor),!
+				;
+				Color = white ->
+					human_select_move(Move, MovesList),!,
+					set_piece(Board, Move, Color, FinalBoard),
+					game_loop(FinalBoard, 2, Depth, RivalColor),!
+			)
+			;
+			Mode = 3 ->
+				human_select_move(Move, MovesList),!,
+				set_piece(Board, Move, Color, FinalBoard),
+				game_loop(FinalBoard, 3, Depth, RivalColor),!
+			;
+			Mode = 4 ->
+				machine_select_move(Board, Depth, Color, FinalBoard),!,
+				game_loop(FinalBoard, 4, Depth, RivalColor),!
+		)
     ).
 
 show_statistics(Board):-
