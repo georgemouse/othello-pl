@@ -65,6 +65,7 @@ init_row(Rowi,Coli,TempRow,Row):-
  * print_board
  */
 print_board(Board):-
+	cls,
     tab(4),
     print_head(0),
     print_body(0,0,Board),
@@ -505,3 +506,4 @@ direction_offsets(OffsetsList) :-
 			[0, -1],
 			[-1,-1]].
 
+cls :-  put(27), put("["), put("2"), put("J").
