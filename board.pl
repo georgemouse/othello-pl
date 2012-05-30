@@ -65,7 +65,7 @@ init_row(Rowi,Coli,TempRow,Row):-
  * print_board
  */
 print_board(Board):-
-	cls,
+	/*cls,*/
     tab(4),
     print_head(0),
     print_body(0,0,Board),
