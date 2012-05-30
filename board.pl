@@ -161,24 +161,36 @@ is_board_full(Board,IsBoardFull):-
 /*
  * final
  */
-final(Board, Value):-
+final_black(Board, Value):-
 	full_board(Board),
 	count_pieces(black, Board, BlackPieces, WhitePieces),
 	Value is BlackPieces - WhitePieces.
+
+final_white(Board, Value):-
+    full_board(Board),
+    count_pieces(black, Board, BlackPieces, WhitePieces),
+    Value is BlackPieces - WhitePieces.
 
 /*
  * eval
  */
 
-eval(Board, Value):-
-	count_pieces(black, Board, BlackPieces, WhitePieces),
-	HeuristicValue1 is BlackPieces - WhitePieces,
-	/*valid_positions(Board, black, BlackValidMoves),
-	valid_positions(Board, white, WhiteValidMoves),
-	HeuristicValue2 is BlackValidMoves - WhiteValidMoves,*/
-	Value = HeuristicValue1.
+eval_black(Board, Value):-
+    count_pieces(black, Board, BlackPieces, WhitePieces),
+    HeuristicValue1 is BlackPieces - WhitePieces,
+    /*valid_positions(Board, black, BlackValidMoves),
+    valid_positions(Board, white, WhiteValidMoves),
+    HeuristicValue2 is BlackValidMoves - WhiteValidMoves,*/
+    Value = HeuristicValue1.
 
-
+eval_white(Board, Value):-
+    count_pieces(black, Board, BlackPieces, WhitePieces),
+    HeuristicValue1 is BlackPieces - WhitePieces,
+    /*valid_positions(Board, black, BlackValidMoves),
+    valid_positions(Board, white, WhiteValidMoves),
+    HeuristicValue2 is BlackValidMoves - WhiteValidMoves,*/
+    Value = HeuristicValue1.
+    
 /*
  * empty_on_board
  */

@@ -33,7 +33,12 @@ play(Depth,Rown,Coln):-
 		    asserta(colnum(Coln)),
 		    init_board(0,[],Board),
 		    select_mode(Mode),
-		    game_loop(Board,Mode,Depth,black),
+		    (
+			    Mode is 5 ->
+	                game_loop(Board,4,Depth,white)
+	            ;
+                    game_loop(Board,Mode,Depth,black)
+            ),
 		    /*clean global variable*/
 		    retract(rownum(Rown)),
 		    retract(colnum(Coln))
@@ -202,7 +207,8 @@ select_mode(Mode):-
 	writeln('1. human vs machine'),
 	writeln('2. machine vs human'),
 	writeln('3. human vs human'),
-    writeln('4. machine vs machine'),
+    writeln('4. machine vs machine (black first)'),
+    writeln('5. machine vs machine (white first)'),
 	write('Enter a number: '),
 	read(SelectedMode),
 	(
@@ -224,7 +230,12 @@ select_mode(Mode):-
         ;
         SelectedMode is 4 ->
             Mode is SelectedMode,
-            writeln('machine vs machine selected'),
+            writeln('machine vs machine (black first) selected'),
+            writeln(''),!
+        ;
+        SelectedMode is 5 ->
+            Mode is SelectedMode,
+            writeln('machine vs machine (white first) selected'),
             writeln(''),!
         ;
 		    writeln('Not a valid mode'),

@@ -41,11 +41,11 @@ alpha_beta_pruning(State, Depth, Color, NewState, Value):-
  * @6: Alpha - the current best value for the player that tries to minimize the game value
  * @7: Beta - the current best value for the player that tries to maximize the game value
  */
-alpha_beta_pruning(_, State, _, State, Value, _, _) :- final(State, Value),!.
+alpha_beta_pruning(_, State, black, State, Value, _, _) :- final_black(State, Value),!.
+alpha_beta_pruning(0, State, black, State, Value, _, _) :- eval_black(State, Value),!.
 
-
-alpha_beta_pruning(0, State, _, State, Value, _, _) :- eval(State, Value),!.
-
+alpha_beta_pruning(_, State, white, State, Value, _, _) :- final_white(State, Value),!.
+alpha_beta_pruning(0, State, white, State, Value, _, _) :- eval_white(State, Value),!.
 
 alpha_beta_pruning(Depth, State, Color, NewState, Value, Alpha, Beta) :-
 	Depth > 0,
