@@ -85,3 +85,10 @@ max_list_aux([First|Rest], CurrentMax, Max):-
 
 max_list_aux([_|Rest], CurrentMax, Max):-
 	max_list_aux(Rest, CurrentMax, Max),!.
+
+
+max(A,B,Max):-
+	A >= B->
+		Max=A
+	;
+	Max=B.
