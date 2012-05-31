@@ -47,7 +47,7 @@ play(Depth,Rown,Coln):-
     ),!.
 
 /*when debugging, play fail will not retract row col truth, causing some confusing outcome* the next time */
-play(Depth,Rown,Coln):-
+play(_,_,_):-
 	destroy.
 
 destroy:-
