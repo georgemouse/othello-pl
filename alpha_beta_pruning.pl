@@ -28,26 +28,17 @@
  * @5: Value - the heuristic value of the move
  */
 alpha_beta_pruning(State, Depth, Color, NewState, Value):- 
-	alpha_beta_pruning(Depth, State, Color, NewState, Value, -1000, 1000).
+	alpha_beta_pruning(Color,Depth, State, Color, NewState, Value, -1000, 1000).
 
 /**
- * Relation: alpha_beta_pruning/7
- * Searches for a move using the alpha-beta pruning algorithm with an alpha and a beta value
- * @1: Depth - the maximum depth of the search
- * @2: State - the current state
- * @3: Color - the color of the player that moves next
- * @4: NewState - the board after applying the move selected by the search
- * @5: Value - the heuristic value of the move
- * @6: Alpha - the current best value for the player that tries to minimize the game value
- * @7: Beta - the current best value for the player that tries to maximize the game value
- */
-alpha_beta_pruning(_, State, black, State, Value, _, _) :- final_black(State, Value),!.
-alpha_beta_pruning(0, State, black, State, Value, _, _) :- eval_black(State, Value),!.
+*  * Relation: alpha_beta_pruning/7
+*   * Searches for a move using the alpha-beta pruning algorithm with an alpha and a beta value
+*    */
+alpha_beta_pruning(Caller,_, State, _, State, Value, _, _) :- final(State, Value),!.
 
-alpha_beta_pruning(_, State, white, State, Value, _, _) :- final_white(State, Value),!.
-alpha_beta_pruning(0, State, white, State, Value, _, _) :- eval_white(State, Value),!.
+alpha_beta_pruning(Caller,0, State, _, State, Value, _, _) :- eval(Caller,State, Value),!.
 
-alpha_beta_pruning(Depth, State, Color, NewState, Value, Alpha, Beta) :-
+alpha_beta_pruning(Caller,Depth, State, Color, NewState, Value, Alpha, Beta) :-
 	Depth > 0,
 	garbage_collect,
 	find_states(State, Color, StatesList),
@@ -57,18 +48,18 @@ alpha_beta_pruning(Depth, State, Color, NewState, Value, Alpha, Beta) :-
 	rival_color(Color, RivalColor),
 	NDepth is Depth - 1,
 	catch(
-		alpha_beta_pruning(StatesList, NDepth, Color, RivalColor, NewState, Value, Alpha, Beta),
+		alpha_beta_pruning(Caller,StatesList, NDepth, Color, RivalColor, NewState, Value, Alpha, Beta),
 		_,
-		alpha_beta_pruning_recover(StatesList, Depth, Color, RivalColor, NewState, Value, Alpha, Beta)).
+		alpha_beta_pruning_recover(Caller,StatesList, Depth, Color, RivalColor, NewState, Value, Alpha, Beta)).
 /**
  * Relation: alpha_beta_pruning/8
  * Searches for a move using the alpha-beta pruning algorithm with an alpha and a beta value
  */
-alpha_beta_pruning([State], Depth, _, RivalColor, State, Value, Alpha, Beta):- !, 
-    alpha_beta_pruning(Depth, State, RivalColor, _, Value, Alpha, Beta).
+alpha_beta_pruning(Caller,[State], Depth, _, RivalColor, State, Value, Alpha, Beta):- !, 
+    alpha_beta_pruning(Caller,Depth, State, RivalColor, _, Value, Alpha, Beta).
 
-alpha_beta_pruning([State|Rest], Depth, Color, RivalColor, NewState, Value, Alpha, Beta) :-
-    alpha_beta_pruning(Depth, State, RivalColor, _, X, Alpha, Beta),
+alpha_beta_pruning(Caller,[State|Rest], Depth, Color, RivalColor, NewState, Value, Alpha, Beta) :-
+    alpha_beta_pruning(Caller,Depth, State, RivalColor, _, X, Alpha, Beta),
     (
         prune(Color, X, Alpha, Beta) ->
         (
@@ -77,7 +68,7 @@ alpha_beta_pruning([State|Rest], Depth, Color, RivalColor, NewState, Value, Alph
         );
         (
             recalc(Color, X, Alpha, Beta, Nalpha, NBeta),
-            alpha_beta_pruning(Rest, Depth, Color, RivalColor, B, Y, Nalpha, NBeta),
+            alpha_beta_pruning(Caller,Rest, Depth, Color, RivalColor, B, Y, Nalpha, NBeta),
             best(Color, X, Y, State, B, NewState, Value)
         )
         
@@ -94,11 +85,11 @@ alpha_beta_pruning([State|Rest], Depth, Color, RivalColor, NewState, Value, Alph
  * @7: Alpha - the current best value for the player that tries to minimize the game value
  * @8: Beta - the current best value for the player that tries to maximize the game value
  */
-alpha_beta_pruning_recover(StatesList, Depth, Color, RivalColor, NewState, Value, Alpha, Beta):-
+alpha_beta_pruning_recover(Caller,StatesList, Depth, Color, RivalColor, NewState, Value, Alpha, Beta):-
 	/*print_message(_, Error),*/
 	writef('recovered at depth %d\n', [Depth]),
 	garbage_collect,
-	alpha_beta_pruning(StatesList, 0, Color, RivalColor, NewState, Value, Alpha, Beta).
+	alpha_beta_pruning(Caller,StatesList, 0, Color, RivalColor, NewState, Value, Alpha, Beta).
 
 
 /**
