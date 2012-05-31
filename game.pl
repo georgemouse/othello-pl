@@ -40,12 +40,21 @@ play(Depth,Rown,Coln):-
                     game_loop(Board,Mode,Depth,black)
             ),
 		    /*clean global variable*/
-		    retract(rownum(Rown)),
-		    retract(colnum(Coln))
+		    destroy
 	    ;
 			writeln('Not a valid row/col number, should be both even.'),
 			writeln('')
-    ).
+    ),!.
+
+/*when debugging, play fail will not retract row col truth, causing some confusing outcome* the next time */
+play(Depth,Rown,Coln):-
+	destroy.
+
+destroy:-
+	rownum(Rown),
+	colnum(Coln),
+	retract(rownum(Rown)),
+	retract(colnum(Coln)).
 
 /**
  * Relation: game_loop/4
@@ -66,61 +75,58 @@ game_loop(Board, Mode, Depth, Color):-
         IsBoardFull = yes ->
             show_statistics(Board)
         ;
-        Mode = 1 ->
-        (
-            Color = black ->
-                find_moves(Board, black, MovesList),
-			    member(_, MovesList),
-			    human_select_move(Move, MovesList),!,
-			    set_piece(Board, Move, black, FinalBoard),
-			    game_loop(FinalBoard, 1, Depth, white),!
-            ;
-            Color = white ->
-                find_moves(Board, white, MovesList),
-                member(_, MovesList),
-			    machine_select_move(Board, Depth, white, FinalBoard),!,
-			    game_loop(FinalBoard, 1, Depth, black),!
-        )
-        ;
-        Mode = 2 ->
-        (
-            Color = black ->
-                find_moves(Board, black, MovesList),
-                member(_, MovesList),
-			    machine_select_move(Board, Depth, black, FinalBoard),!,
-			    game_loop(FinalBoard, 2, Depth, white),!
-            ;
-            Color = white ->
-			    find_moves(Board, white, MovesList),
-			    member(_, MovesList),
-			    human_select_move(Move, MovesList),!,
-			    set_piece(Board, Move, white, FinalBoard),
-			    game_loop(FinalBoard, 2, Depth, black),!
-        )
-        ;
-        Mode = 3 ->
-		    find_moves(Board, Color, MovesList),
-		    member(_, MovesList),
-		    human_select_move(Move, MovesList),!,
-		    set_piece(Board, Move, Color, FinalBoard),
-		    rival_color(Color, RivalColor),
-		    game_loop(FinalBoard, 3, Depth, RivalColor),!
-		;
-        Mode = 4 ->
-        (
-            Color = black ->
-                find_moves(Board, black, MovesList),
-                member(_, MovesList),
-                machine_select_move(Board, Depth, black, FinalBoard),!,
-                game_loop(FinalBoard, 4, Depth, white),!
-            ;
-            Color = white ->
-                find_moves(Board, white, MovesList),
-                member(_, MovesList),
-                machine_select_move(Board, Depth, white, FinalBoard),!,
-                game_loop(FinalBoard, 4, Depth, black),!
-        )
+		find_moves(Board, Color, MovesList),
+		member(_, MovesList),
+		rival_color(Color,RivalColor),
+		(
+			Mode = 1 ->
+			(
+				Color = black ->
+					human_select_move(Move, MovesList),!,
+					set_piece(Board, Move, Color, FinalBoard),
+					game_loop(FinalBoard, 1, Depth, RivalColor),!
+				;
+				Color = white ->
+					machine_select_move(Board, Depth, white, FinalBoard),!,
+					game_loop(FinalBoard, 1, Depth, RivalColor),!
+			)
+			;
+			Mode = 2 ->
+			(
+				Color = black ->
+					machine_select_move(Board, Depth, Color, FinalBoard),!,
+					game_loop(FinalBoard, 2, Depth, RivalColor),!
+				;
+				Color = white ->
+					human_select_move(Move, MovesList),!,
+					set_piece(Board, Move, Color, FinalBoard),
+					game_loop(FinalBoard, 2, Depth, RivalColor),!
+			)
+			;
+			Mode = 3 ->
+				human_select_move(Move, MovesList),!,
+				set_piece(Board, Move, Color, FinalBoard),
+				game_loop(FinalBoard, 3, Depth, RivalColor),!
+			;
+			Mode = 4 ->
+				machine_select_move(Board, Depth, Color, FinalBoard),!,
+				game_loop(FinalBoard, 4, Depth, RivalColor),!
+		)
     ).
+
+game_loop(Board, Mode, Depth, Color):-
+	find_moves(Board, Color, MovesList),!,
+	not(member(_,MovesList)),!,
+    rival_color(Color, RivalColor),
+	(
+        /* if rival also have no move, show statistics*/
+        (find_moves(Board, RivalColor, RivalMovesList), member(_,RivalMovesList))->	
+		    writeln('There\'s no valid move.'),
+			game_loop(Board, Mode, Depth, RivalColor),!
+		;
+            writeln('There\'s no valid move for both players.'),
+            show_statistics(Board)
+	).
 
 show_statistics(Board):-
     nl,
@@ -140,19 +146,6 @@ show_statistics(Board):-
     ),
     nl.
 
-game_loop(Board, Mode, Depth, Color):-
-	find_moves(Board, Color, MovesList),!,
-	not(member(_,MovesList)),!,
-    rival_color(Color, RivalColor),
-	(
-        /* if rival also have no move, show statistics*/
-        (find_moves(Board, RivalColor, RivalMovesList), member(_,RivalMovesList))->	
-		    writeln('There\'s no valid move.'),
-			game_loop(Board, Mode, Depth, RivalColor),!
-		;
-            writeln('There\'s no valid move for both players.'),
-            show_statistics(Board)
-	).
 
 /**
  * Relation: print_player/1
