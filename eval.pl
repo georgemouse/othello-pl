@@ -1,9 +1,7 @@
-final(Board, Value):-
-    full_board(Board),
-    count_pieces(black, Board, BlackPieces, WhitePieces),
-    Value is BlackPieces - WhitePieces.
-
-eval(Caller,Board, Value):-
+/* 
+ * black heuristic
+ */
+eval(black,Board, Value):-
     count_pieces(black, Board, BlackPieces, WhitePieces),
     HeuristicValue1 is BlackPieces - WhitePieces,
 	getCorners(Corners),
@@ -15,8 +13,35 @@ eval(Caller,Board, Value):-
     HeuristicValue2 is BlackValidMoves - WhiteValidMoves,
     max_list([HeuristicValue1,HeuristicValue2], Value).
 */
-	Value is HeuristicValue1+Bonus.
+    Value is HeuristicValue1+Bonus.
 
+final(black,Board, Value):-
+    full_board(Board),
+    count_pieces(black, Board, BlackPieces, WhitePieces),
+    Value is BlackPieces - WhitePieces.
+
+
+/* 
+ * white heuristic
+ */
+eval(white,Board, Value):-
+    count_pieces(black, Board, BlackPieces, WhitePieces),
+    HeuristicValue1 is BlackPieces - WhitePieces,
+    getCorners(Corners),
+    positionCount(black,Board,Corners,BlackCorner,WhiteCorner),
+    Bonus is 10*(BlackCorner-WhiteCorner),
+    Value is HeuristicValue1+Bonus.
+/*
+    valid_positions(Board, black, BlackValidMoves),
+    valid_positions(Board, white, WhiteValidMoves),
+    HeuristicValue2 is BlackValidMoves - WhiteValidMoves,
+    max_list([HeuristicValue1,HeuristicValue2], Value).
+*/
+    
+final(white,Board, Value):-
+    full_board(Board),
+    count_pieces(black, Board, BlackPieces, WhitePieces),
+    Value is 10*(BlackPieces - WhitePieces).
 
 /*count pieces at special position*/
 positionCount(Color,Board,PositionList,Count,RivalCount):-
