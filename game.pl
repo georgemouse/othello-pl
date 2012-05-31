@@ -40,12 +40,21 @@ play(Depth,Rown,Coln):-
                     game_loop(Board,Mode,Depth,black)
             ),
 		    /*clean global variable*/
-		    retract(rownum(Rown)),
-		    retract(colnum(Coln))
+		    destroy
 	    ;
 			writeln('Not a valid row/col number, should be both even.'),
 			writeln('')
-    ).
+    ),!.
+
+/*when debugging, play fail will not retract row col truth, causing some confusing outcome* the next time */
+play(Depth,Rown,Coln):-
+	destroy.
+
+destroy:-
+	rownum(Rown),
+	colnum(Coln),
+	retract(rownum(Rown)),
+	retract(colnum(Coln)).
 
 /**
  * Relation: game_loop/4
@@ -105,6 +114,20 @@ game_loop(Board, Mode, Depth, Color):-
 		)
     ).
 
+game_loop(Board, Mode, Depth, Color):-
+	find_moves(Board, Color, MovesList),!,
+	not(member(_,MovesList)),!,
+    rival_color(Color, RivalColor),
+	(
+        /* if rival also have no move, show statistics*/
+        (find_moves(Board, RivalColor, RivalMovesList), member(_,RivalMovesList))->	
+		    writeln('There\'s no valid move.'),
+			game_loop(Board, Mode, Depth, RivalColor),!
+		;
+            writeln('There\'s no valid move for both players.'),
+            show_statistics(Board)
+	).
+
 show_statistics(Board):-
     nl,
     count_pieces(black, Board, NumBlack, NumWhite),
@@ -123,19 +146,6 @@ show_statistics(Board):-
     ),
     nl.
 
-game_loop(Board, Mode, Depth, Color):-
-	find_moves(Board, Color, MovesList),!,
-	not(member(_,MovesList)),!,
-    rival_color(Color, RivalColor),
-	(
-        /* if rival also have no move, show statistics*/
-        (find_moves(Board, RivalColor, RivalMovesList), member(_,RivalMovesList))->	
-		    writeln('There\'s no valid move.'),
-			game_loop(Board, Mode, Depth, RivalColor),!
-		;
-            writeln('There\'s no valid move for both players.'),
-            show_statistics(Board)
-	).
 
 /**
  * Relation: print_player/1
