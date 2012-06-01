@@ -28,15 +28,15 @@
  * @5: Value - the heuristic value of the move
  */
 alpha_beta_pruning(State, Depth, Color, NewState, Value):- 
-	alpha_beta_pruning(Color,Depth, State, Color, NewState, Value, -1000, 1000).
+	alpha_beta_pruning(Color,Depth, State, Color, NewState, Value, -100000, 100000).
 
 /**
 *  * Relation: alpha_beta_pruning/7
 *   * Searches for a move using the alpha-beta pruning algorithm with an alpha and a beta value
 *    */
-alpha_beta_pruning(Caller,_, State, _, State, Value, _, _) :- final(State, Value),!.
+alpha_beta_pruning(Caller,_, State, _, State, Value, _, _) :- final(Caller, State, Value),!.
 
-alpha_beta_pruning(Caller,0, State, _, State, Value, _, _) :- eval(Caller,State, Value),!.
+alpha_beta_pruning(Caller,0, State, _, State, Value, _, _) :- eval(Caller, State, Value),!.
 
 alpha_beta_pruning(Caller,Depth, State, Color, NewState, Value, Alpha, Beta) :-
 	Depth > 0,
