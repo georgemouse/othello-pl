@@ -77,6 +77,27 @@ getXSquares(XSquares):-
 /* 
  * white heuristic
  */
+
+    
+ 
+eval(white,Board, Value):-
+    count_pieces(black, Board, BlackPieces, WhitePieces),
+    PieceValue is (BlackPieces - WhitePieces),!,
+    valid_positions(Board, black, BlackValidMoves),
+    valid_positions(Board, white, WhiteValidMoves),
+    MobilityValue is (BlackValidMoves - WhiteValidMoves),!,
+    getCornerValue(Board, CornerValue),!,
+    getEdgeValue(Board, EdgeValue),!,
+    Value is (15* PieceValue + 10* MobilityValue + 10* CornerValue + 10* EdgeValue).
+
+final(white,Board, Value):-
+    valid_positions(Board, black, BlackValidMoves),
+    BlackValidMoves is 0,!,
+    valid_positions(Board, white, WhiteValidMoves),
+    WhiteValidMoves is 0,!,
+    count_pieces(black, Board, BlackPieces, WhitePieces),
+    Value is 40*(BlackPieces - WhitePieces),!.
+
 getCornerSquares(CornerSquares):-
     getRowCol(Rowi,Coli),
     R1 is Rowi-1,
@@ -87,28 +108,14 @@ getCornerSquares(CornerSquares):-
                     [R1,0,  R1,1,   R2,0,   R2,1  ],
                     [0,C1,  0,C2,   1,C1,   1,C2  ],
                     [R1,C1, R1,C2,  R2,C1,  R2, C2]].
-    
- 
-eval(white,Board, Value):-
-    count_pieces(black, Board, BlackPieces, WhitePieces),
-    PieceValue is (BlackPieces - WhitePieces),!,
-    valid_positions(Board, black, BlackValidMoves),
-    valid_positions(Board, white, WhiteValidMoves),
-    MobilityValue is (BlackValidMoves - WhiteValidMoves),!,
+
+/*
+ * getCornerValue
+ * Decide the effect of move around corners.
+ */
+getCornerValue(Board, CornerValue):-
     getCornerSquares(CornerSquares),
-    getCornerValue(Board, CornerSquares, CornerValue),!,
-    Value is (10* PieceValue + 12* MobilityValue + 15* CornerValue).
-
-final(white,Board, Value):-
-    valid_positions(Board, black, BlackValidMoves),
-    BlackValidMoves is 0,!,
-    valid_positions(Board, white, WhiteValidMoves),
-    WhiteValidMoves is 0,!,
-    count_pieces(black, Board, BlackPieces, WhitePieces),
-    Value is 20*(BlackPieces - WhitePieces),!.
-
-getCornerValue(Board, CornerSquares, CornerValue):-
-    getCornerValue(Board, CornerSquares, CornerValue, 0).
+    getCornerValue(Board, CornerSquares, CornerValue, 0),!.
     
 getCornerValue(Board, CornerSquares, CornerValue, CornerValueBuf):-
     /*writef('Corner %w %w %w\n', [CornerValue, CornerSquares, CornerValueBuf]),*/
@@ -129,20 +136,68 @@ getCornerValue(Board, CornerSquares, CornerValue, CornerValueBuf):-
 		    PieceCorner = empty ->
 		    (
 		        (PieceCorner1=black; PieceCorner2=black; PieceCorner3=black)->
-		            Value = -1
+		            Value = -2
 		        ;
 		        (PieceCorner1=white; PieceCorner2=white; PieceCorner3=white)->
-		            Value = 1
+		            Value = 2
 		        ;
 		            Value = 0
 		    )
 		    ;
 		    PieceCorner = white ->
-		        Value = -2
+		        Value = -3
 		    ;
-		        Value = 2
-		),
+		        Value = 3
+		),!,
 		/*writef('getCornerValue %w %w\n',[CurrentSqure, PieceCorner]),*/
 		NCornerValueBuf is CornerValueBuf + Value,
 		getCornerValue(Board, CornerSquaresRest, CornerValue, NCornerValueBuf)
     ).
+
+/*
+ * getEdgeValue
+ * Decide the effect of move on edges.
+ */
+getEdgeValue(Board, EdgeValue):-
+    getRowCol(RowN, ColN),
+    getEdgeValue(Board, EdgeValue, RowN, ColN, 0, 0, 0, 0),!.
+
+getEdgeValue(Board, EdgeValue, RowN, ColN, Rowi, Coli, BlackOnEdgeBuf, WhiteOnEdgeBuf):-
+    piece(Board, Rowi, Coli, PieceColor),
+    /*writef('getEdge %w %w %w %w\n',[Rowi, Coli, BlackOnEdgeBuf, WhiteOnEdgeBuf]),*/
+    (
+        PieceColor = black ->
+            NewBlackOnEdgeBuf is BlackOnEdgeBuf + 1,
+            NewWhiteOnEdgeBuf is WhiteOnEdgeBuf
+        ;
+        PieceColor = white ->
+            NewBlackOnEdgeBuf is BlackOnEdgeBuf,
+            NewWhiteOnEdgeBuf is WhiteOnEdgeBuf + 1
+        ;
+            NewBlackOnEdgeBuf is BlackOnEdgeBuf,
+            NewWhiteOnEdgeBuf is WhiteOnEdgeBuf
+    ),
+    (
+        (Rowi is RowN-1, Coli is ColN-1) ->
+            EdgeValue is NewBlackOnEdgeBuf - NewWhiteOnEdgeBuf
+            /*writef('getEdgeValue %d %w %w\n',[EdgeValue, NewBlackOnEdgeBuf, NewWhiteOnEdgeBuf])*/
+        ;
+        (
+	        (Coli is ColN-1) ->
+	            NextColi is 0,
+	            NextRowi is Rowi+1
+	        ;
+	        (Rowi is RowN-1; Rowi is 0) ->
+	            NextColi is Coli+1,
+	            NextRowi is Rowi
+	        ;
+	        (Coli is 0, not(Rowi is RowN-1), not(Rowi is 0)) ->
+	            NextColi is ColN-1,
+	            NextRowi is Rowi
+	        ;
+	            writef('unexpected %w %w\n',[Rowi, Coli])
+        ),
+        getEdgeValue(Board, EdgeValue, RowN, ColN, NextRowi, NextColi, NewBlackOnEdgeBuf, NewWhiteOnEdgeBuf)
+    ),!.
+    
+    
