@@ -65,7 +65,6 @@ init_row(Rowi,Coli,TempRow,Row):-
  * print_board
  */
 print_board(Board):-
-	/*cls,*/
     tab(4),
     print_head(0),
     print_body(0,0,Board),
@@ -75,7 +74,7 @@ print_head(Coli):-
     colnum(C),
     Coli=C,
     nl,
-    write('----'),
+    write('  ----'),
     for(1,C,1,write('--')),
     nl,
     !.
@@ -200,6 +199,7 @@ find_boards(Board, Color, BoardsList, CurrentBoardsList, [Move|RestMovesList]):-
 
 /*
  * order_boards
+ * arrange pruning order, larger Number first pruned
  */
 order_boards(Color, CurrentBoardsList, FinalBoard, NBoardsList):-
 	rival_color(Color, RivalColor),
@@ -360,6 +360,9 @@ set_piece(Board, PieceRowIndex, PieceColumnIndex, Color, FinalBoard):-
 	set_single_piece(Board, PieceRowIndex, PieceColumnIndex, Color, BoardWithPiece),
 	set_pieces_on_offsets(BoardWithPiece, PieceRowIndex, PieceColumnIndex, Color, ValidDirectionOffsets, FinalBoard).
 
+/*
+ * set_pieces_on_offsets
+ */
 set_pieces_on_offsets(FinalBoard, _, _, _, [], FinalBoard):-!.
 
 set_pieces_on_offsets(Board, PieceRowIndex, PieceColumnIndex, Color, ValidDirectionOffsets, FinalBoard):-
@@ -387,6 +390,9 @@ set_pieces_on_offset(Board, PieceRowIndex, PieceColumnIndex, Color, ValidDirecti
 	set_single_piece(Board, NRowOffset, NColumnOffset, Color, TempBoard),
 	set_pieces_on_offset(TempBoard, NRowOffset, NColumnOffset, Color, ValidDirectionOffset, FinalBoard).
 
+/*
+ * set_single_piece
+ */
 set_single_piece(Board, PieceRowIndex, PieceColumnIndex, Color, FinalBoard):-
 	set_single_piece(Board, PieceRowIndex, PieceColumnIndex, 0, 0, Color, [], FinalBoard, []).
 
@@ -484,8 +490,6 @@ direction_offsets(OffsetsList) :-
 			[1, -1],
 			[0, -1],
 			[-1,-1]].
-
-cls :-  put(27), put("["), put("2"), put("J").
 
 getRowCol(R,C):-
 	rownum(R),
