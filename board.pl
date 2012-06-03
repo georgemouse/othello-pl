@@ -176,49 +176,55 @@ full_board(Board):-
 /*
  * find_states
  */
-find_states(State, Color, StatesList):-
-	find_boards(State, Color, StatesList).
+find_states(Caller, State, Color, StatesList):-
+	find_boards(Caller, State, Color, StatesList).
 
 /*
  * find_boards
  */
-find_boards(Board, Color, BoardsList):-
+find_boards(Caller, Board, Color, BoardsList):-
 	find_moves(Board, Color, MovesList),
-	find_boards(Board, Color, OrderedBoardsList, [], MovesList),
+	find_boards(Caller, Board, Color, OrderedBoardsList, [], MovesList),
 	first_elements(OrderedBoardsList, [], BoardsList).
 
-find_boards(Board,_, BoardsList, [], []):-
+find_boards(Caller, Board,_, BoardsList, [], []):-
 	append([], [[Board, 0]], BoardsList),!.
 
-find_boards(_, _, BoardsList, BoardsList, []):-!.
+find_boards(Caller, _, _, BoardsList, BoardsList, []):-!.
 
-find_boards(Board, Color, BoardsList, CurrentBoardsList, [Move|RestMovesList]):-
+find_boards(Caller, Board, Color, BoardsList, CurrentBoardsList, [Move|RestMovesList]):-
 	set_piece(Board, Move, Color, FinalBoard),
-	order_boards(Color, CurrentBoardsList, FinalBoard, NBoardsList),
-	find_boards(Board, Color, BoardsList, NBoardsList, RestMovesList),!.
+	order_boards(Caller, Color, CurrentBoardsList, FinalBoard, NBoardsList),
+	find_boards(Caller, Board, Color, BoardsList, NBoardsList, RestMovesList),!.
 
 /*
  * order_boards
- * arrange pruning order, larger Number first pruned
+ * arrange pruning order, better state first pruned
  */
-order_boards(Color, CurrentBoardsList, FinalBoard, NBoardsList):-
-	rival_color(Color, RivalColor),
-	valid_positions(FinalBoard, RivalColor, Number),
-	order_boards_aux([FinalBoard, Number], CurrentBoardsList, [], NBoardsList).
+order_boards(Caller, Color, CurrentBoardsList, FinalBoard, NBoardsList):-
+	/*rival_color(Color, RivalColor),*/
+	/*valid_positions(FinalBoard, RivalColor, Number),*/
+	eval(Caller, FinalBoard, Number),
+	order_boards_aux(Color, [FinalBoard, Number], CurrentBoardsList, [], NBoardsList).
 
-order_boards_aux(Board, [], CurrentList, FinalList):-
+order_boards_aux(Color, Board, [], CurrentList, FinalList):-
 	append(CurrentList, [Board], FinalList),!.
 
-order_boards_aux(Board, [First|Rest], CurrentList, FinalList):-
+order_boards_aux(Color, Board, [First|Rest], CurrentList, FinalList):-
 	nth0(1, First, Value),
 	nth0(1, Board, NewValue),
-	NewValue =< Value,
+	(
+	   Color = black ->
+	       NewValue >= Value
+	   ;
+           NewValue =< Value
+	),
 	append(CurrentList, [Board], TempList),
 	append(TempList, [First|Rest], FinalList),!.
 
-order_boards_aux(Board, [First|Rest], CurrentList, FinalList):-
+order_boards_aux(Color, Board, [First|Rest], CurrentList, FinalList):-
 	append(CurrentList, [First], NCurrentList),
-	order_boards_aux(Board, Rest, NCurrentList, FinalList),!.
+	order_boards_aux(Color, Board, Rest, NCurrentList, FinalList),!.
 
 /*
  * valid_positions

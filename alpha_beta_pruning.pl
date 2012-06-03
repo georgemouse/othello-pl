@@ -41,7 +41,7 @@ alpha_beta_pruning(Caller,0, State, _, State, Value, _, _) :- eval(Caller, State
 alpha_beta_pruning(Caller,Depth, State, Color, NewState, Value, Alpha, Beta) :-
 Depth > 0,
 garbage_collect,
-find_states(State, Color, StatesList),
+find_states(Caller, State, Color, StatesList),
 /*length(StatesList, L),
 writef('number of boards %d, depth %d\n', [L,Depth]),
 first_n_elements(7, BoardsList, NBoardsList),*/
@@ -51,6 +51,7 @@ catch(
 alpha_beta_pruning(Caller,StatesList, NDepth, Color, RivalColor, NewState, Value, Alpha, Beta),
 _,
 alpha_beta_pruning_recover(Caller,StatesList, Depth, Color, RivalColor, NewState, Value, Alpha, Beta)).
+
 /**
 * Relation: alpha_beta_pruning/8
 * Searches for a move using the alpha-beta pruning algorithm with an alpha and a beta value
@@ -101,9 +102,11 @@ alpha_beta_pruning(Caller,StatesList, 0, Color, RivalColor, NewState, Value, Alp
 * @4: Beta - the current best value for the player that tries to maximize the game value
 */
 prune(black, Value, _, Beta):-
+/*writeln('pruned black'),*/
 Value >= Beta.
 
 prune(white, Value, Alpha, _):-
+/*writeln('pruned white'),*/
 Value =< Alpha.
 
 /**
