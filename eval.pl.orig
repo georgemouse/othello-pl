@@ -1,3 +1,8 @@
+final(Board, Value):-
+    full_board(Board),
+    count_pieces(black, Board, BlackPieces, WhitePieces),
+    Value is BlackPieces - WhitePieces.
+
 /* 
  * black heuristic
  */
@@ -10,6 +15,12 @@ eval(black,Board, Value):-
 	getXSquares(XSquares),
 	positionCount(black,Board,Corners,BlackCorner,WhiteCorner),
 	positionCount(black,Board,XSquares,BlackXSquares,WhiteXSquares),
+<<<<<<< HEAD
+	CornersBonus is 10*(BlackCorner-WhiteCorner),
+	XSquaresBonus is -10*(BlackXSquares-WhiteXSquares),
+	Bonus is CornersBonus+XSquaresBonus,
+	Value is HeuristicValue1+Bonus.
+=======
 
 	valid_positions(Board, black, BlackValidMoves),
 	valid_positions(Board, white, WhiteValidMoves),
@@ -32,13 +43,38 @@ eval(black,Board, Value):-
 	XSquaresBonus is -10*(BlackXSquares-WhiteXSquares),
 	Bonus is CornersBonus+XSquaresBonus,
 	Value is Piece_diff_Score+Valid_diff_score+Bonus.
+>>>>>>> 35579a78ba3e4e3efc65bd8862c3d9c8e94591bc
+
+
+<<<<<<< HEAD
+=======
+
+/* 
+ * white heuristic
+ */
+eval(white,Board, Value):-
+    count_pieces(black, Board, BlackPieces, WhitePieces),
+    HeuristicValue1 is BlackPieces - WhitePieces,
+	getCorners(Corners),
+	getXSquares(XSquares),
+	positionCount(black,Board,Corners,BlackCorner,WhiteCorner),
+	positionCount(black,Board,XSquares,BlackXSquares,WhiteXSquares),
+	CornersBonus is 10*(BlackCorner-WhiteCorner),
+	XSquaresBonus is -10*(BlackXSquares-WhiteXSquares),
+	Bonus is CornersBonus+XSquaresBonus,
+	Value is HeuristicValue1+Bonus.
 
 final(black,Board, Value):-
     full_board(Board),
     count_pieces(black, Board, BlackPieces, WhitePieces),
     Value is BlackPieces - WhitePieces.
+    
+final(white,Board, Value):-
+    full_board(Board),
+    count_pieces(black, Board, BlackPieces, WhitePieces),
+    Value is BlackPieces - WhitePieces.
 
-
+>>>>>>> 35579a78ba3e4e3efc65bd8862c3d9c8e94591bc
 /*count pieces at special position*/
 positionCount(Color,Board,PositionList,Count,RivalCount):-
 	positionCount(Color,Board,PositionList,0,0,Count,RivalCount).
@@ -82,7 +118,6 @@ getCorners(Corners):-
 	C is CC-1,
 	Corners=[[0,0],[0,C],
 			 [R,0],[R,C]].
-    
 getXSquares(XSquares):-
 	getRowCol(RR,CC),
 	CornerR is RR-1,
@@ -94,6 +129,10 @@ getXSquares(XSquares):-
 			 	[R,1, CornerR,0],
 				[R,C, CornerR,CornerC]
 			].
+<<<<<<< HEAD
+=======
+
+>>>>>>> 35579a78ba3e4e3efc65bd8862c3d9c8e94591bc
 
 /* 
  * white heuristic
@@ -109,7 +148,7 @@ eval(white,Board, Value):-
     MobilityValue is (BlackValidMoves - WhiteValidMoves),!,
     getCornerValue(Board, CornerValue),!,
     getEdgeValue(Board, EdgeValue),!,
-    Value is (10* PieceValue + 10* MobilityValue + 10* CornerValue + 10* EdgeValue).
+    Value is (15* PieceValue + 10* MobilityValue + 10* CornerValue + 10* EdgeValue).
 
 final(white,Board, Value):-
     valid_positions(Board, black, BlackValidMoves),
