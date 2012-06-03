@@ -8,15 +8,35 @@ final(Board, Value):-
  */
 eval(black,Board, Value):-
     count_pieces(black, Board, BlackPieces, WhitePieces),
-    HeuristicValue1 is BlackPieces - WhitePieces,
+	TotalPiece is BlackPieces +  WhitePieces,
+
+    Piece_diff is BlackPieces - WhitePieces,
 	getCorners(Corners),
 	getXSquares(XSquares),
 	positionCount(black,Board,Corners,BlackCorner,WhiteCorner),
 	positionCount(black,Board,XSquares,BlackXSquares,WhiteXSquares),
+
+	valid_positions(Board, black, BlackValidMoves),
+	valid_positions(Board, white, WhiteValidMoves),
+	Valid_diff is WhiteValidMoves-BlackValidMoves ,
+	/*
+	getRowCol(R,C),
+	TotalPosition is R*C,
+	*/
+	(
+		(TotalPiece<36)->
+			/*Piece_diff_Score is 0,*/
+			Piece_diff_Score is Piece_diff,
+			Valid_diff_score is Valid_diff
+		;
+			Piece_diff_Score is Piece_diff,
+			Valid_diff_score is 0
+	),
+
 	CornersBonus is 10*(BlackCorner-WhiteCorner),
 	XSquaresBonus is -10*(BlackXSquares-WhiteXSquares),
 	Bonus is CornersBonus+XSquaresBonus,
-	Value is HeuristicValue1+Bonus.
+	Value is Piece_diff_Score+Valid_diff_score+Bonus.
 
 
 
