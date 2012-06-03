@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2008 Leo Arias elopio@softwarelibrecr.org Instituto Tecnológico de Costa Rica
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
  * 
  */
 
-/**
+/*
  * Relation: play/1
  * Starts the game
  * @1: Depth - the maximum depth of the search
@@ -56,7 +56,7 @@ destroy:-
 	retract(rownum(Rown)),
 	retract(colnum(Coln)).
 
-/**
+/*
  * Relation: game_loop/4
  * Loops the game, switching turns, until the game ends
  * @1: Board - the current board
@@ -147,7 +147,7 @@ show_statistics(Board):-
     nl.
 
 
-/**
+/*
  * Relation: print_player/1
  * Prints the player that moves next
  * @1: Color - the color of the player that moves next
@@ -160,7 +160,7 @@ print_player(black):-
     nl,
 	writeln('Black player''s turn (X)'),!.
 
-/**
+/*
  * Relation: human_select_move/2
  * Succeds when Move unifies with one of the possible moves in MovesList
  * @1: Move - The move selected by the human
@@ -180,7 +180,7 @@ human_select_move(Move, MovesList):-
 	writeln(''),
 	human_select_move(Move, MovesList).
 
-/**
+/*
  * Relation: machine_select_move/4
  * Selects a move from the possible ones for the player that has the next move
  * @1: Board - The current board
@@ -192,7 +192,7 @@ machine_select_move(Board, Depth, Color, FinalBoard):-
 	garbage_collect,
 	alpha_beta_pruning(Board, Depth, Color, FinalBoard, _).
 
-/**
+/*
  * select_mode & enter_mode
  */
 select_mode(Mode):-

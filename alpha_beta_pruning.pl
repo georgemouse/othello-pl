@@ -1,4 +1,4 @@
-/**
+/*
 * Copyright (c) 1997-2006 Miguel Filgueiras mig@ncc.up.pt Universidade do Porto
 * Copyright (c) 2008 Leo Arias elopio@softwarelibrecr.org Instituto Tecnológico de Costa Rica
 * This program is free software: you can redistribute it and/or modify
@@ -18,7 +18,7 @@
 * The original can be found here: http://www.ncc.up.pt/~mig/rped/search.txt
 */
 
-/**
+/*
 * Relation: alpha_beta_pruning/5
 * Searches for a move using the alpha-beta pruning algorithm
 * @1: State - the current board
@@ -30,10 +30,10 @@
 alpha_beta_pruning(State, Depth, Color, NewState, Value):-
 alpha_beta_pruning(Color,Depth, State, Color, NewState, Value, -100000, 100000).
 
-/**
-* * Relation: alpha_beta_pruning/7
-* * Searches for a move using the alpha-beta pruning algorithm with an alpha and a beta value
-* */
+/*
+* Relation: alpha_beta_pruning/7
+* Searches for a move using the alpha-beta pruning algorithm with an alpha and a beta value
+*/
 alpha_beta_pruning(Caller,_, State, _, State, Value, _, _) :- final(Caller, State, Value),!.
 
 alpha_beta_pruning(Caller,0, State, _, State, Value, _, _) :- eval(Caller, State, Value),!.
@@ -42,9 +42,6 @@ alpha_beta_pruning(Caller,Depth, State, Color, NewState, Value, Alpha, Beta) :-
 Depth > 0,
 garbage_collect,
 find_states(Caller, State, Color, StatesList),
-/*length(StatesList, L),
-writef('number of boards %d, depth %d\n', [L,Depth]),
-first_n_elements(7, BoardsList, NBoardsList),*/
 rival_color(Color, RivalColor),
 NDepth is Depth - 1,
 catch(
@@ -52,7 +49,7 @@ alpha_beta_pruning(Caller,StatesList, NDepth, Color, RivalColor, NewState, Value
 _,
 alpha_beta_pruning_recover(Caller,StatesList, Depth, Color, RivalColor, NewState, Value, Alpha, Beta)).
 
-/**
+/*
 * Relation: alpha_beta_pruning/8
 * Searches for a move using the alpha-beta pruning algorithm with an alpha and a beta value
 */
@@ -74,7 +71,8 @@ alpha_beta_pruning(Caller,[State|Rest], Depth, Color, RivalColor, NewState, Valu
         )
         
     ).
-/**
+
+/*
 * Relation: alpha_beta_pruning_recover/8
 * Used to recover when an exception occurs. Updates the depth to 0 to end the search
 * @1: StatesList - list of possible states
@@ -93,7 +91,7 @@ garbage_collect,
 alpha_beta_pruning(Caller,StatesList, 0, Color, RivalColor, NewState, Value, Alpha, Beta).
 
 
-/**
+/*
 * Relation: prune/4
 * Succeds if a prune has to be done
 * @1: Color - the color of the player that moves next
@@ -109,7 +107,7 @@ prune(white, Value, Alpha, _):-
 /*writeln('pruned white'),*/
 Value =< Alpha.
 
-/**
+/*
 * Relation: recalc/6
 * Recalculates alpha and beta values
 * @1: Color - the color of the player that moves next
@@ -125,7 +123,7 @@ max_list([Alpha, Value], Nalpha).
 recalc(white, Value, Alpha, Beta, Alpha, NBeta):-
 min_list([Beta, Value], NBeta).
 
-/**
+/*
 * Relation: best/7
 * Calculates the best value depending on the color that moves next
 */

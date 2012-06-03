@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2008 Leo Arias elopio@softwarelibrecr.org Instituto Tecnológico de Costa Rica
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -187,10 +187,10 @@ find_boards(Caller, Board, Color, BoardsList):-
 	find_boards(Caller, Board, Color, OrderedBoardsList, [], MovesList),
 	first_elements(OrderedBoardsList, [], BoardsList).
 
-find_boards(Caller, Board,_, BoardsList, [], []):-
+find_boards(_, Board,_, BoardsList, [], []):-
 	append([], [[Board, 0]], BoardsList),!.
 
-find_boards(Caller, _, _, BoardsList, BoardsList, []):-!.
+find_boards(_, _, _, BoardsList, BoardsList, []):-!.
 
 find_boards(Caller, Board, Color, BoardsList, CurrentBoardsList, [Move|RestMovesList]):-
 	set_piece(Board, Move, Color, FinalBoard),
@@ -207,7 +207,7 @@ order_boards(Caller, Color, CurrentBoardsList, FinalBoard, NBoardsList):-
 	eval(Caller, FinalBoard, Number),
 	order_boards_aux(Color, [FinalBoard, Number], CurrentBoardsList, [], NBoardsList).
 
-order_boards_aux(Color, Board, [], CurrentList, FinalList):-
+order_boards_aux(_, Board, [], CurrentList, FinalList):-
 	append(CurrentList, [Board], FinalList),!.
 
 order_boards_aux(Color, Board, [First|Rest], CurrentList, FinalList):-
